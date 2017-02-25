@@ -11,7 +11,7 @@ setuptools.setup(
     description      = 'Python3 ctypes wrapper for the Opal Kelly FrontPanel FPGA interface ',
 
     keywords         = 'Opal Kelly FPGA FrontPanel',
-    install_requires = ['ctypes'],
+    #install_requires = [''],
     packages         = setuptools.find_packages(),
 
     zip_safe         = False,

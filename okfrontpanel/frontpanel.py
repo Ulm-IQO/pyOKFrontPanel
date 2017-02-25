@@ -4,7 +4,7 @@
 
 import sys
 import ctypes
-import definitions as okd
+from . import definitions as okd
 
 if sys.platform.startswith('linux'):
     dll = ctypes.CDLL('libokFrontPanel.so')
@@ -79,13 +79,13 @@ class PLL22150:
         return dll.okPLL22150_IsOutputEnabled(self._handle, output)
 
     def InitFromProgrammingInfo(self, info):
-        buf = ctypes.create_string_buffer()
+        buf = ctypes.create_string_buffer(info)
         dll.okPLL22150_InitFromProgrammingInfo(self._handle, buf)
 
     def GetProgrammingInfo(self):
         buf = ctypes.create_string_buffer()
         dll.okPLL22150_GetProgrammingInfo(self._handle, buf)
-        return buf.value
+        return buf.value.decode()
 
 
 class PLL22393:
@@ -144,7 +144,7 @@ class PLL22393:
         return dll.okPLL22393_IsPLLEnabled(self._handle, n)
 
     def InitFromProgrammingInfo(self, info):
-        buf = ctypes.create_string_buffer()
+        buf = ctypes.create_string_buffer(info)
         dll.okPLL22393_InitFromProgrammingInfo(self._handle, buf)
 
     def GetProgrammingInfo(self):
@@ -152,56 +152,82 @@ class PLL22393:
         dll.okPLL22393_GetProgrammingInfo(self._handle, buf)
         return buf.value
 
+
+class DeviceSettings:
+    def __init__(self):
+        self._handle = dll.okDeviceSettings_Construct()
+
+    def __del__(self):
+        dll.okDeviceSettings_Destruct(self._handle)
+
+    def GetString(self, key):
+        dll.okDeviceSettings_GetString(self._handle, )
+
+    def GetInt(self, key):
+        dll.okDeviceSettings_GetInt(self._handle, )
+
+    def SetString(self, key, value):
+        dll.okDeviceSettings_SetString(self._handle, ,)
+
+    def SetInt(self, key, value):
+        dll.okDeviceSettings_SetInt(self._handle, , )
+
+    def Delete(self, key):
+        dll.okDeviceSettings_Delete(self._handle, )
+
+    def Save(self):
+        dll.(okDeviceSettings_Save(self._handle)
+
+
 class DeviceSensors:
     def __init__(self):
-        pass
+        self._handle = dll.okDeviceSensors_Construct()
 
     def __del__(self):
-        pass
-
-    def Construct(self):
-        pass
-
-    def Destruct(self):
-        pass
+        dll.okDeviceSensors_Destruct(self._handle)
 
     def GetSensorCount(self):
-        pass
+        return dll.okDeviceSensors_GetSensorCount(self._handle)
 
     def GetSensor(self, n):
-        pass
+        return dll.okDeviceSensors_GetSensor(self._handle, n)
+
+
+class Firmware:
+    def __init__(self, handle):
+        self._handle = handle
+
+    def PerformTasks(self, serial, callback, arg):
+        dll.okFirmware_PerformTasks(slef._handle, serial, callback, arg)
+
 
 class FirmwarePackage:
-    def __init__(self):
-        pass
+    def __init__(self, filename):
+        self._handle = dll.okFirmwarePackage_Load(filename)
 
     def __del__(self):
-        pass
-
-    def Load(filename):
-        pass
-
-    def Destruct(self):
-        pass
+        dll.okFirmwarePackage_Destruct(self._handle)
 
     def GetFirmwareCount(self):
-        pass
+        return dll.okFirmwarePackage_GetFirmwareCount(self._handle);
 
     def GetFirmware(self, num):
-        pass
+        fw = dll.okFirmwarePackage_GetFirmware(self._handle, num)
+        return Firmware(fw)
 
 class FrontPanelManager:
-    def __init__(self):
-        pass
+    def __init__(self, realm):
+        self._handle = dll.okFrontPanelManager_Construct(self, realm)
 
     def __del__(self):
-        pass
+        dll.okFrontPanelManager_Destruct(self._handle)
 
     def StartMonitoring(self):
-        pass
+        dll.okFrontPanelManager_StartMonitoring(self._handle)
 
     def Open(self, serial):
-        pass
+        fp_handle = dll.okFrontPanelManager_Open(self._handle, serial)
+        return FrontPanel(fp_handle)
 
 class FrontPanelDevices:
     def __init__(self):
@@ -219,11 +245,17 @@ class FrontPanelDevices:
     def Open(self, serial):
         pass
 
+def check():
+    pass
+
 
 class FrontPanel:
     """Main wrapper class for controlling the Opal Kelly FPGA-Board."""
-    def __init__(self):
-        self._handle = dll.okFrontPanel_Construct()
+    def __init__(self, handle=None):
+        if handle is not None:
+            self._handle = handle
+        else:
+            self._handle = dll.okFrontPanel_Construct()
 
     def __del__(self):
         self._handle = dll.okFrontPanel_Destruct(self._handle)
@@ -234,11 +266,11 @@ class FrontPanel:
         dll.okFrontPanel_GetErrorString(ec,ctypes.byref(buf), okd.MAX_ERROR_NAME_LENGTH)
         return buf.value.decode() # converts byte to string
 
-    def AddCustomDevice(matchInfo, devInfo):
-        pass
+    def AddCustomDevice(self, matchInfo, devInfo):
+        dll.okFrontPanel_AddCustomDevice()
 
-    def RemoveCustomDevice(productID):
-        pass
+    def RemoveCustomDevice(self, productID):
+        dll.okFrontPanel_RemoveCustomDevice()
 
     def WriteI2C(self, addr, length, data):
         pass
@@ -280,23 +312,23 @@ class FrontPanel:
         pass
 
     def GetHostInterfaceWidth(self):
-        pass
+        return dll.okFrontPanel_GetHostInterfaceWidth(self._handle)
 
     def IsHighSpeed(self):
-        pass
+        return dll.okFrontPanel_IsHighSpeed(self._handle)
 
     def GetBoardModel(self):
-        pass
+        return okd.BoardModel(dll.okFrontPanel_GetBoardModel(self._handle))
 
     def GetBoardModelString(self, model=0):
         #buf = ctypes.create_string_buffer(self.OK_MAX_BOARD_MODEL_STRING_LENGTH)
         #self._dll.okFrontPanel_GetBoardModelString(model,ctypes.byref(buf))
         #return buf.value.decode() # converts byte to string
-        return self.ok_BoardModel(model).name
+        return okd.BoardModel(model).name
 
     def GetDeviceCount(self):
         """int okFrontPanel_GetDeviceCount(okFrontPanel_HANDLE hnd);"""
-        count = self._dll.okFrontPanel_GetDeviceCount(self._handle)
+        count = dll.okFrontPanel_GetDeviceCount(self._handle)
         return count
 
     def GetDeviceListModel(self, num):
@@ -307,7 +339,7 @@ class FrontPanel:
 
     def OpenBySerial(self, serial=""):
         """ok_ErrorCode okFrontPanel_OpenBySerial(okFrontPanel_HANDLE hnd, const char *serial);"""
-        return self.check(self._dll.okFrontPanel_OpenBySerial(self._handle, serial.encode()))
+        return self.check(dll.okFrontPanel_OpenBySerial(self._handle, serial.encode()))
 
     def IsOpen(self):
         pass
@@ -332,7 +364,7 @@ class FrontPanel:
 
     def Close(self):
         """void okFrontPanel_Close(okFrontPanel_HANDLE hnd);"""
-        self._dll.okFrontPanel_Close(self._handle)
+        dll.okFrontPanel_Close(self._handle)
 
     def GetSerialNumber(self, buf):
         pass
@@ -357,7 +389,7 @@ class FrontPanel:
 
     def ConfigureFPGA(self, strFilename):
         """ok_ErrorCode okFrontPanel_ConfigureFPGA(okFrontPanel_HANDLE hnd, const char *strFilename);"""
-        return self.check(self._dll.okFrontPanel_ConfigureFPGA(self._handle, strFilename.encode()))
+        return self.check(dll.okFrontPanel_ConfigureFPGA(self._handle, strFilename.encode()))
 
     def ConfigureFPGAWithReset(self, strFilename, reset):
         pass
@@ -400,7 +432,7 @@ class FrontPanel:
 
     def IsFrontPanelEnabled(self):
         """Bool okFrontPanel_IsFrontPanelEnabled(okFrontPanel_HANDLE hnd);"""
-        bool_val = self._dll.okFrontPanel_ConfigureFPGA(self._handle)
+        bool_val = dll.okFrontPanel_ConfigureFPGA(self._handle)
         return True if (bool_val == 0) else False
 
     def IsFrontPanel3Supported(self):
@@ -408,7 +440,7 @@ class FrontPanel:
 
     def UpdateWireIns(self):
         """void okFrontPanel_UpdateWireIns(okFrontPanel_HANDLE hnd);"""
-        self._dll.okFrontPanel_UpdateWireIns(self._handle)
+        dll.okFrontPanel_UpdateWireIns(self._handle)
 
     def GetWireInValue(self, epAddr, val):
         """ok_ErrorCode okFrontPanel_GetWireInValue(okFrontPanel_HANDLE hnd, int epAddr, UINT32 *val);"""
@@ -420,7 +452,7 @@ class FrontPanel:
 
     def UpdateWireOuts(self):
         """void okFrontPanel_UpdateWireOuts(okFrontPanel_HANDLE hnd);"""
-        self._dll.okFrontPanel_UpdateWireOuts(self._handle)
+        dll.okFrontPanel_UpdateWireOuts(self._handle)
 
     def GetWireOutValue(self, epAddr):
         """unsigned long okFrontPanel_GetWireOutValue(okFrontPanel_HANDLE hnd, int epAddr);"""
@@ -431,7 +463,7 @@ class FrontPanel:
 
     def UpdateTriggerOuts(self):
         """void okFrontPanel_UpdateTriggerOuts(okFrontPanel_HANDLE hnd);"""
-        self._dll.okFrontPanel_UpdateTriggerOuts(self._handle)
+        dll.okFrontPanel_UpdateTriggerOuts(self._handle)
 
     def IsTriggered(self, epAddr, mask):
         pass

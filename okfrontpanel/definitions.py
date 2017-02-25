@@ -3,7 +3,7 @@
 """
 
 import ctypes
-from enum import Enum
+from enum import Enum, IntEnum
 
 MODE_HIST = 0
 
@@ -178,6 +178,7 @@ class ResetProfile(ctypes.Structure):
         ('padBytes2',           ctypes.c_uint8 * 1520)
     ]
 
+
 class FlashLayout(ctypes.Structure):
     _fields_ = [
         ('sectorCount',     ctypes.c_uint32),
@@ -222,7 +223,10 @@ class DeviceMatchInfo(ctypes.Structure):
         ('pciDID',          ctypes.c_uint32)
     ]
 
-class DeviceSensorType(Enum):
+DeviceSensorType_t = ctypes.c_int
+
+
+class DeviceSensorType(IntEnum):
     INVALID     = 0
     BOOL        = 1
     INTEGER     = 2
@@ -236,7 +240,7 @@ class DeviceSensorType(Enum):
 class DeviceSensor(ctypes.Structure):
     _fields_ = [
         ('id',          ctypes.c_int),
-        ('type',        DeviceSensorType),
+        ('type',        DeviceSensorType_t),
         ('name',        ctypes.c_char * MAX_DEVICE_SENSOR_NAME_LENGTH),
         ('description', ctypes.c_char * MAX_DEVICE_SENSOR_DESCRIPTION_LENGTH),
         ('min',         ctypes.c_double),
