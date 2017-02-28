@@ -12,11 +12,13 @@ setuptools.setup(
     download_url = 'https://github.com/Ulm-IQO/pyOKFrontPanel/archive/',
     description      = 'Python ctypes wrapper for the Opal Kelly FrontPanel FPGA interface ',
     keywords         = 'Opal Kelly FPGA FrontPanel',
-    #install_requires = [''],
-    packages         = setuptools.find_packages(),
 
-    zip_safe         = False,
+    packages        = setuptools.find_packages(),
+    setup_requires  = ["cffi>=1.0.0"],
+    cffi_modules    = ["okfrontpanel/wrapper_build.py:ffibuilder"],
+    install_requires= ["cffi>=1.0.0"],
 
+    zip_safe        = False,
     package_data = {
         ''         : ['*.txt', '*.rst', '*.md'],
     },
