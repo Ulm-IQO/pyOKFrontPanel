@@ -167,16 +167,16 @@ class DeviceSettings:
         dll.okDeviceSettings_GetInt(self._handle, )
 
     def SetString(self, key, value):
-        dll.okDeviceSettings_SetString(self._handle, ,)
+        dll.okDeviceSettings_SetString(self._handle, key, value)
 
     def SetInt(self, key, value):
-        dll.okDeviceSettings_SetInt(self._handle, , )
+        dll.okDeviceSettings_SetInt(self._handle, key, value)
 
     def Delete(self, key):
-        dll.okDeviceSettings_Delete(self._handle, )
+        dll.okDeviceSettings_Delete(self._handle, key)
 
     def Save(self):
-        dll.(okDeviceSettings_Save(self._handle)
+        dll.okDeviceSettings_Save(self._handle)
 
 
 class DeviceSensors:
@@ -245,9 +245,6 @@ class FrontPanelDevices:
     def Open(self, serial):
         pass
 
-def check():
-    pass
-
 def check(func_val):
     """ Check routine for the received error codes.
     @param func_val int: return error code of the called function.
@@ -263,19 +260,20 @@ def check(func_val):
         #self.log.error('Error in Opal Kelly okFrontPanel with errorcode {0}:\n'
         #            '{1}'.format(func_val, ok_ErrorCode[func_val]))
         print('Error in Opal Kelly okFrontPanel with errorcode {0}: '
-            '{1}'.format(func_val, okd.ErrorCode(func_val).name))
+            '{1}'.format(func_val, okd.ErrorCode(func_val).name),
+            file=sys.stderr)
     return func_val
 
 class FrontPanel:
     """Main wrapper class for controlling the Opal Kelly FPGA-Board."""
     def __init__(self, handle=None):
         if handle is not None:
-            self._handle = handle
+            self._handle = ctypes.c_void_p(handle)
         else:
-            self._handle = dll.okFrontPanel_Construct()
+            self._handle = ctypes.c_void_p(dll.okFrontPanel_Construct())
 
     def __del__(self):
-        self._handle = dll.okFrontPanel_Destruct(self._handle)
+        dll.okFrontPanel_Destruct(self._handle)
 
     def GetErrorString(self, ec):
         """int okFrontPanel_GetErrorString(int ec, char *buf, int length);"""
@@ -360,7 +358,7 @@ class FrontPanel:
         return check(err)
 
     def IsOpen(self):
-        pass
+        return dll.okFrontPanel_IsOpen() == 1
 
     def EnableAsynchronousTransfers(self, enable):
         pass
