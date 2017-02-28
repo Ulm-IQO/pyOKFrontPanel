@@ -7,7 +7,7 @@ setuptools.setup(
     license = 'MIT',
     version = '0.0.1',
     author  = 'Qudi developers',
-    author_email = 'qudi@uni-ulm.de'
+    author_email = 'qudi@uni-ulm.de',
     url     = 'https://github.com/Ulm-IQO/pyOKFrontPanel',
     download_url = 'https://github.com/Ulm-IQO/pyOKFrontPanel/archive/',
     description      = 'Python ctypes wrapper for the Opal Kelly FrontPanel FPGA interface ',
