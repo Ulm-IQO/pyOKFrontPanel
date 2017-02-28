@@ -52,6 +52,30 @@ ffibuilder.cdef("""
         ok_brdXEM6310MTLX150T=31
     } ok_BoardModel;
     
+    typedef enum {
+        ok_NoError                    = 0,
+        ok_Failed                     = -1,
+        ok_Timeout                    = -2,
+        ok_DoneNotHigh                = -3,
+        ok_TransferError              = -4,
+        ok_CommunicationError         = -5,
+        ok_InvalidBitstream           = -6,
+        ok_FileError                  = -7,
+        ok_DeviceNotOpen              = -8,
+        ok_InvalidEndpoint            = -9,
+        ok_InvalidBlockSize           = -10,
+        ok_I2CRestrictedAddress       = -11,
+        ok_I2CBitError                = -12,
+        ok_I2CNack                    = -13,
+        ok_I2CUnknownStatus           = -14,
+        ok_UnsupportedFeature         = -15,
+        ok_FIFOUnderflow              = -16,
+        ok_FIFOOverflow               = -17,
+        ok_DataAlignmentError         = -18,
+        ok_InvalidResetProfile        = -19,
+        ok_InvalidParameter           = -20
+    } ok_ErrorCode;
+
 
     okFrontPanel_HANDLE okFrontPanel_Construct();
     void okFrontPanel_Destruct(okFrontPanel_HANDLE hnd);
@@ -59,6 +83,17 @@ ffibuilder.cdef("""
     ok_BoardModel okFrontPanel_GetDeviceListModel(okFrontPanel_HANDLE hnd, int num);
     void okFrontPanel_GetDeviceListSerial(okFrontPanel_HANDLE hnd, int num, char *buf);
     void okFrontPanel_GetBoardModelString(okFrontPanel_HANDLE hnd, ok_BoardModel m, char *buf);
+    ok_ErrorCode okFrontPanel_OpenBySerial(okFrontPanel_HANDLE hnd, const char *serial);
+    ok_ErrorCode okFrontPanel_ConfigureFPGA(okFrontPanel_HANDLE hnd, const char *strFilename);
+    Bool okFrontPanel_IsFrontPanelEnabled(okFrontPanel_HANDLE hnd);
+    void okFrontPanel_UpdateWireIns(okFrontPanel_HANDLE hnd);
+    ok_ErrorCode okFrontPanel_GetWireInValue(okFrontPanel_HANDLE hnd, int epAddr, UINT32 *val);
+    ok_ErrorCode okFrontPanel_SetWireInValue(okFrontPanel_HANDLE hnd, int ep, unsigned long val, unsigned long mask);
+    void okFrontPanel_UpdateWireOuts(okFrontPanel_HANDLE hnd);
+    unsigned long okFrontPanel_GetWireOutValue(okFrontPanel_HANDLE hnd, int epAddr);
+    ok_ErrorCode okFrontPanel_ActivateTriggerIn(okFrontPanel_HANDLE hnd, int epAddr, int bit);
+    long okFrontPanel_ReadFromBlockPipeOut(okFrontPanel_HANDLE hnd, int epAddr, int blockSize, long length, unsigned char *data);
+
 """)
 
 if __name__ == "__main__":
