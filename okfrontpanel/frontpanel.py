@@ -248,6 +248,23 @@ class FrontPanelDevices:
 def check():
     pass
 
+def check(func_val):
+    """ Check routine for the received error codes.
+    @param func_val int: return error code of the called function.
+    @return int: pass the error code further so that other functions have
+                 the possibility to use it.
+    Each called function in the dll has an 32-bit return integer, which
+    indicates, whether the function was called and finished successfully
+    (then func_val = 0) or if any error has occured (func_val < 0). The
+    errorcode, which corresponds to the return value can be looked up in
+    the class ok_ErrorCode.
+    """
+    if func_val < 0:
+        #self.log.error('Error in Opal Kelly okFrontPanel with errorcode {0}:\n'
+        #            '{1}'.format(func_val, ok_ErrorCode[func_val]))
+        print('Error in Opal Kelly okFrontPanel with errorcode {0}: '
+            '{1}'.format(func_val, okd.ErrorCode(func_val).name))
+    return func_val
 
 class FrontPanel:
     """Main wrapper class for controlling the Opal Kelly FPGA-Board."""
@@ -339,7 +356,8 @@ class FrontPanel:
 
     def OpenBySerial(self, serial=""):
         """ok_ErrorCode okFrontPanel_OpenBySerial(okFrontPanel_HANDLE hnd, const char *serial);"""
-        return self.check(dll.okFrontPanel_OpenBySerial(self._handle, serial.encode()))
+        err = dll.okFrontPanel_OpenBySerial(self._handle, serial.encode())
+        return check(err)
 
     def IsOpen(self):
         pass
@@ -389,7 +407,8 @@ class FrontPanel:
 
     def ConfigureFPGA(self, strFilename):
         """ok_ErrorCode okFrontPanel_ConfigureFPGA(okFrontPanel_HANDLE hnd, const char *strFilename);"""
-        return self.check(dll.okFrontPanel_ConfigureFPGA(self._handle, strFilename.encode()))
+        err = dll.okFrontPanel_ConfigureFPGA(self._handle, strFilename.encode())
+        return check(err)
 
     def ConfigureFPGAWithReset(self, strFilename, reset):
         pass
@@ -448,7 +467,8 @@ class FrontPanel:
 
     def SetWireInValue(self, ep, val, mask):
         """ok_ErrorCode okFrontPanel_SetWireInValue(okFrontPanel_HANDLE hnd, int ep, unsigned long val, unsigned long mask);"""
-        pass
+        err = dll.okFrontPanel_SetWireInValue(self._handle, ep, val, mask)
+        return check(err)
 
     def UpdateWireOuts(self):
         """void okFrontPanel_UpdateWireOuts(okFrontPanel_HANDLE hnd);"""
@@ -456,10 +476,11 @@ class FrontPanel:
 
     def GetWireOutValue(self, epAddr):
         """unsigned long okFrontPanel_GetWireOutValue(okFrontPanel_HANDLE hnd, int epAddr);"""
-        pass
+        return dll.okFrontPanel_GetWireOutValue(self._handle, epAddr)
 
     def ActivateTriggerIn(self, epAddr, bit):
-        pass
+        err = dll.okFrontPanel_ActivateTriggerIn(epAddr, bit)
+        return check(err)
 
     def UpdateTriggerOuts(self):
         """void okFrontPanel_UpdateTriggerOuts(okFrontPanel_HANDLE hnd);"""
@@ -480,5 +501,8 @@ class FrontPanel:
     def WriteToBlockPipeIn(self, epAddr, blockSize, length, data):
         pass
 
-    def ReadFromBlockPipeOut(self, epAddr, blockSize, length, data):
-        pass
+    def ReadFromBlockPipeOut(self, epAddr, blockSize, data):
+        """ long DLL_ENTRY okFrontPanel_ReadFromBlockPipeOut(okFrontPanel_HANDLE hnd, int epAddr, int blockSize, long length, unsigned char *data);"""
+        length = len(data)
+        err = dll.okFrontPanel_ReadFromBlockPipeOut(self._handle, epAddr, length, data)
+        return check(err)
