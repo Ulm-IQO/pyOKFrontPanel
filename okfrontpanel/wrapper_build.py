@@ -9,12 +9,15 @@ ffibuilder = cffi.FFI()
 ffibuilder.set_source(
     "okfrontpanel._wrapper",
     """
+    #include <stdint.h>
     #include <okFrontPanelDLL.h>
     """,
     libraries=['okFrontPanel']
 )
 
 ffibuilder.cdef("""
+    typedef int Bool;
+    typedef char okBool;
     typedef void* okFrontPanel_HANDLE;
 
     typedef enum {
@@ -87,7 +90,7 @@ ffibuilder.cdef("""
     ok_ErrorCode okFrontPanel_ConfigureFPGA(okFrontPanel_HANDLE hnd, const char *strFilename);
     Bool okFrontPanel_IsFrontPanelEnabled(okFrontPanel_HANDLE hnd);
     void okFrontPanel_UpdateWireIns(okFrontPanel_HANDLE hnd);
-    ok_ErrorCode okFrontPanel_GetWireInValue(okFrontPanel_HANDLE hnd, int epAddr, UINT32 *val);
+    ok_ErrorCode okFrontPanel_GetWireInValue(okFrontPanel_HANDLE hnd, int epAddr, uint32_t *val);
     ok_ErrorCode okFrontPanel_SetWireInValue(okFrontPanel_HANDLE hnd, int ep, unsigned long val, unsigned long mask);
     void okFrontPanel_UpdateWireOuts(okFrontPanel_HANDLE hnd);
     unsigned long okFrontPanel_GetWireOutValue(okFrontPanel_HANDLE hnd, int epAddr);
