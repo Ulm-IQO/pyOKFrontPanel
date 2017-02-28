@@ -275,15 +275,18 @@ class FrontPanel:
     def __del__(self):
         dll.okFrontPanel_Destruct(self._handle)
 
-    def GetErrorString(self, ec):
+    @staticmethod
+    def GetErrorString(ec):
         """int okFrontPanel_GetErrorString(int ec, char *buf, int length);"""
         buf = ctypes.create_string_buffer(okd.MAX_ERROR_NAME_LENGTH)
-        dll.okFrontPanel_GetErrorString(ec,ctypes.byref(buf), okd.MAX_ERROR_NAME_LENGTH)
+        dll.okFrontPanel_GetErrorString(ec, ctypes.byref(buf), okd.MAX_ERROR_NAME_LENGTH)
         return buf.value.decode() # converts byte to string
 
-    def AddCustomDevice(self, matchInfo, devInfo):
+    @staticmethod
+    def AddCustomDevice(matchInfo, devInfo):
         dll.okFrontPanel_AddCustomDevice()
 
+    @staticmethod
     def RemoveCustomDevice(self, productID):
         dll.okFrontPanel_RemoveCustomDevice()
 
@@ -335,7 +338,8 @@ class FrontPanel:
     def GetBoardModel(self):
         return okd.BoardModel(dll.okFrontPanel_GetBoardModel(self._handle))
 
-    def GetBoardModelString(self, model=0):
+    @staticmethod
+    def GetBoardModelString(model=0):
         #buf = ctypes.create_string_buffer(self.OK_MAX_BOARD_MODEL_STRING_LENGTH)
         #self._dll.okFrontPanel_GetBoardModelString(model,ctypes.byref(buf))
         #return buf.value.decode() # converts byte to string
