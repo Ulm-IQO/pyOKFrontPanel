@@ -245,7 +245,7 @@ def check(error_code):
     the class ok_ErrorCode.
     """
     if error_code < 0:
-        msg = FrontPanel.GetErrorString(ec)
+        msg = FrontPanel.GetErrorString(error_code)
         print(
             'Error in Opal Kelly okFrontPanel with errorcode {0}: '
             '{1}'.format(error_code, msg),
@@ -264,7 +264,7 @@ class FrontPanel:
         lib.okFrontPanel_Destruct(self._handle)
 
     @staticmethod
-    def GetErrorString(ec):
+    def GetErrorString(error_code):
         """int okFrontPanel_GetErrorString(int ec, char *buf, int length);"""
         actlen = lib.okFrontPanel_GetErrorString(error_code, ffi.NULL, 0)
         buf = ffi.new('char[]', int(actlen))
