@@ -233,7 +233,7 @@ class FrontPanelDevices:
     def Open(self, serial):
         pass
 
-def check(eror_code):
+def check(error_code):
     """ Check routine for the received error codes.
     @param func_val int: return error code of the called function.
     @return int: pass the error code further so that other functions have
