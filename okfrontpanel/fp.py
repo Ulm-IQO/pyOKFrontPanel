@@ -233,7 +233,7 @@ class FrontPanelDevices:
     def Open(self, serial):
         pass
 
-def check(func_val):
+def check(eror_code):
     """ Check routine for the received error codes.
     @param func_val int: return error code of the called function.
     @return int: pass the error code further so that other functions have
@@ -244,21 +244,21 @@ def check(func_val):
     errorcode, which corresponds to the return value can be looked up in
     the class ok_ErrorCode.
     """
-    if func_val < 0:
-        #self.log.error('Error in Opal Kelly okFrontPanel with errorcode {0}:\n'
-        #            '{1}'.format(func_val, ok_ErrorCode[func_val]))
-        print('Error in Opal Kelly okFrontPanel with errorcode {0}: '
-            '{1}'.format(func_val, okd.ErrorCode(func_val).name),
+    if error_code < 0:
+        msg = FrontPanel.GetErrorString(ec)
+        print(
+            'Error in Opal Kelly okFrontPanel with errorcode {0}: '
+            '{1}'.format(error_code, msg),
             file=sys.stderr)
-    return func_val
+    return error_code
 
 class FrontPanel:
     """Main wrapper class for controlling the Opal Kelly FPGA-Board."""
     def __init__(self, handle=None):
-        if handle is not None:
-            self._handle = handle
-        else:
+        if handle is None:
             self._handle = lib.okFrontPanel_Construct()
+        else:
+            self._handle = handle
 
     def __del__(self):
         lib.okFrontPanel_Destruct(self._handle)
@@ -266,8 +266,11 @@ class FrontPanel:
     @staticmethod
     def GetErrorString(ec):
         """int okFrontPanel_GetErrorString(int ec, char *buf, int length);"""
-        lib.okFrontPanel_GetErrorString(ec, ctypes.byref(buf), okd.MAX_ERROR_NAME_LENGTH)
-        return buf.value.decode() # converts byte to string
+        actlen = lib.okFrontPanel_GetErrorString(error_code, ffi.NULL, 0)
+        buf = ffi.new('char[]', int(actlen))
+        lib.okFrontPanel_GetErrorString(error_code, buf, actlen + 1)
+        msg = ffi.string(buf, actlen + 1).decode('ascii')
+        return msg
 
     @staticmethod
     def AddCustomDevice(matchInfo, devInfo):
@@ -317,25 +320,24 @@ class FrontPanel:
         pass
 
     def GetHostInterfaceWidth(self):
-        return lib.okFrontPanel_GetHostInterfaceWidth(self._handle)
+        return int(lib.okFrontPanel_GetHostInterfaceWidth(self._handle))
 
     def IsHighSpeed(self):
-        return lib.okFrontPanel_IsHighSpeed(self._handle)
+        return bool(lib.okFrontPanel_IsHighSpeed(self._handle))
 
     def GetBoardModel(self):
-        return okd.BoardModel(lib.okFrontPanel_GetBoardModel(self._handle))
+        return lib.okFrontPanel_GetBoardModel(self._handle)
 
     @staticmethod
     def GetBoardModelString(model=0):
-        #buf = ctypes.create_string_buffer(self.OK_MAX_BOARD_MODEL_STRING_LENGTH)
-        #self._lib.okFrontPanel_GetBoardModelString(model,ctypes.byref(buf))
-        #return buf.value.decode() # converts byte to string
-        return okd.BoardModel(model).name
+        buf = ffi.new('char[]', lib.OK_BOARDMODELSTRING_LENGTH)
+        lib.okFrontPanel_GetBoardModelString(error_code, model, buf)
+        bms = ffi.string(buf).decode('ascii')
+        return bms
 
     def GetDeviceCount(self):
         """int okFrontPanel_GetDeviceCount(okFrontPanel_HANDLE hnd);"""
-        count = lib.okFrontPanel_GetDeviceCount(self._handle)
-        return count
+        return int(lib.okFrontPanel_GetDeviceCount(self._handle))
 
     def GetDeviceListModel(self, num):
         pass
@@ -349,7 +351,7 @@ class FrontPanel:
         return check(err)
 
     def IsOpen(self):
-        return lib.okFrontPanel_IsOpen() == 1
+        return lib.okFrontPanel_IsOpen() == lib.TRUE
 
     def EnableAsynchronousTransfers(self, enable):
         pass
