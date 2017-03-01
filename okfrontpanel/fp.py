@@ -328,10 +328,9 @@ class FrontPanel:
     def GetBoardModel(self):
         return lib.okFrontPanel_GetBoardModel(self._handle)
 
-    @staticmethod
     def GetBoardModelString(model):
         buf = ffi.new('char[]', lib.OK_MAX_BOARD_MODEL_STRING_LENGTH)
-        lib.okFrontPanel_GetBoardModelString(model, buf)
+        lib.okFrontPanel_GetBoardModelString(self._handle, model, buf)
         return ffi.string(buf).decode('ascii')
 
     def GetDeviceCount(self):
