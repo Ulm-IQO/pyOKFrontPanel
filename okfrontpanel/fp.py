@@ -329,29 +329,29 @@ class FrontPanel:
         return lib.okFrontPanel_GetBoardModel(self._handle)
 
     @staticmethod
-    def GetBoardModelString(model=0):
+    def GetBoardModelString(model):
         buf = ffi.new('char[]', lib.OK_BOARDMODELSTRING_LENGTH)
         lib.okFrontPanel_GetBoardModelString(error_code, model, buf)
-        bms = ffi.string(buf).decode('ascii')
-        return bms
+        return ffi.string(buf).decode('ascii')
 
     def GetDeviceCount(self):
         """int okFrontPanel_GetDeviceCount(okFrontPanel_HANDLE hnd);"""
         return int(lib.okFrontPanel_GetDeviceCount(self._handle))
 
     def GetDeviceListModel(self, num):
-        pass
+        return lib.okFrontPanel_GetDeviceListModel(self._handle, num)
 
-    def GetDeviceListSerial(self, num, buf):
-        pass
+    def GetDeviceListSerial(self, num):
+        buf = ffi.new('char[]', lib.OK_MAX_SERIALNUMBER_LENGTH)
+        lib.okFrontPanel_GetDeviceListSerial(self._handle, num, buf)
+        return ffi.string(buf).decode('ascii')
 
     def OpenBySerial(self, serial=""):
-        """ok_ErrorCode okFrontPanel_OpenBySerial(okFrontPanel_HANDLE hnd, const char *serial);"""
         err = lib.okFrontPanel_OpenBySerial(self._handle, serial.encode())
         return check(err)
 
     def IsOpen(self):
-        return lib.okFrontPanel_IsOpen() == lib.TRUE
+        return lib.okFrontPanel_IsOpen(self._handle) == lib.TRUE
 
     def EnableAsynchronousTransfers(self, enable):
         pass
@@ -375,8 +375,10 @@ class FrontPanel:
         """void okFrontPanel_Close(okFrontPanel_HANDLE hnd);"""
         lib.okFrontPanel_Close(self._handle)
 
-    def GetSerialNumber(self, buf):
-        pass
+    def GetSerialNumber(self):
+        buf = ffi.new('char[]', lib.OK_MAX_SERIALNUMBER_LENGTH)
+        lib.okFrontPanel_GetSerialNumber(self._handle, buf)
+        return ffi.string(buf).decode('ascii')
 
     def GetDeviceSensors(self, settings):
         pass
@@ -390,11 +392,13 @@ class FrontPanel:
     def GetDeviceInfoWithSize(self, info, size):
         pass
 
-    def GetDeviceID(self, buf):
-        pass
+    def GetDeviceID(self):
+        buf = ffi.new('char[]', lib.OK_MAX_DEVICEID_LENGTH)
+        lib.okFrontPanel_GetDeviceID(self._handle, buf)
+        return ffi.string(buf).decode('ascii')
 
     def SetDeviceID(self, strID):
-        pass
+        return lib.okFrontPanel_SetDeviceID(self._handle, strID.encode())
 
     def ConfigureFPGA(self, strFilename):
         """ok_ErrorCode okFrontPanel_ConfigureFPGA(okFrontPanel_HANDLE hnd, const char *strFilename);"""
