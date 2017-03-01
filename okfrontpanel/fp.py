@@ -252,8 +252,10 @@ def check(error_code):
             file=sys.stderr)
     return error_code
 
+
 class FrontPanel:
-    """Main wrapper class for controlling the Opal Kelly FPGA-Board."""
+    """Main wrapper class for controlling Opal Kelly FPGA boards."""
+
     def __init__(self, handle=None):
         if handle is None:
             self._handle = lib.okFrontPanel_Construct()
@@ -274,50 +276,65 @@ class FrontPanel:
 
     @staticmethod
     def AddCustomDevice(matchInfo, devInfo):
-        lib.okFrontPanel_AddCustomDevice()
+        err = lib.okFrontPanel_AddCustomDevice(matchInfo, devInfo)
+        return check(err)
 
     @staticmethod
     def RemoveCustomDevice(self, productID):
-        lib.okFrontPanel_RemoveCustomDevice()
+        err = lib.okFrontPanel_RemoveCustomDevice(productID)
+        return check(err)
 
-    def WriteI2C(self, addr, length, data):
-        pass
+    def WriteI2C(self, addr, data):
+        length = len(data)
+        err = lib.okFrontPanel_WriteI2C(self._handle, addr, length, data)
+        return check(err)
 
-    def ReadI2C(self, addr, length, data):
-        pass
+    def ReadI2C(self, addr, length):
+        data = ffi.new('unsigned char[]', length)
+        err = lib.okFrontPanel_ReadI2C(self._handle, addr, length, data)
+        return ffi.string(data)
 
     def FlashEraseSector(self, address):
-        pass
+        err = okFrontPanel_FlashEraseSector(self._handle, address)
+        return check(err)
 
-    def FlashWrite(self, address, length, buf):
-        pass
+    def FlashWrite(self, address, data):
+        length = len(data)
+        buf = ffi.new()
+        err = lib.okFrontPanel_FlashWrite(self._handle, address, length, buf)
+        return check(err)
 
-    def FlashRead(self, address, length, buf):
-        pass
+    def FlashRead(self, address, length):
+        buf = ffi.new()
+        err = lib.okFrontPanel_FlashWrite(self._handle, address, length, buf)
+        return ffi.string(buf)
 
-    def GetFPGAResetProfile(self, method, profile):
-        pass
-
-    def GetFPGAResetProfileWithSize(self, method, profile, size):
-        pass
+    def GetFPGAResetProfile(self, method):
+        err = okFrontPanel_GetFPGAResetProfileWithSize(self._handle, method, profile, size)
+        return profile
 
     def SetFPGAResetProfile(self, method, profile):
-        pass
+        err = lib.okFrontPanel_SetFPGAResetProfileWithSize(method, profile, size)
+        return check(err)
 
-    def SetFPGAResetProfileWithSize(self, method, profile, size):
-        pass
+    def ReadRegister(self, addr):
+        data = ffi.new('uint32_t')
+        lib.okFrontPanel_ReadRegister(self._handle, addr, data)
+        return int(data)
 
-    def ReadRegister(self, addr, data):
-        pass
-
-    def ReadRegisters(self, num, regs):
-        pass
+    def ReadRegisters(self, regs):
+        num = len(regs)
+        regbuf = ffi.new('okTRegisterEntry[]', num)
+        okFrontPanel_ReadRegisters(self._handle, num, regbuf)
 
     def WriteRegister(self, addr, data):
-        pass
+        err = lib.okFrontPanel_WriteRegister(self._handle, addr, data)
+        return check(err)
 
-    def WriteRegisters(self, num, regs):
-        pass
+    def WriteRegisters(self, regs):
+        num = len(regs)
+        err = lib.okFrontPanel_WriteRegisters(self._handle, num, regs)
+        return check(err)
 
     def GetHostInterfaceWidth(self):
         return int(lib.okFrontPanel_GetHostInterfaceWidth(self._handle))
@@ -353,22 +370,26 @@ class FrontPanel:
         return lib.okFrontPanel_IsOpen(self._handle) == lib.TRUE
 
     def EnableAsynchronousTransfers(self, enable):
-        pass
+        lib.okFrontPanel_EnableAsynchronousTransfers(
+            self._handle,
+            lib.TRUE if enable else lib.FALSE)
 
     def SetBTPipePollingInterval(self, interval):
-        pass
+        err = okFrontPanel_SetBTPipePollingInterval(self._handle, interval)
+        return check(err)
 
     def SetTimeout(self, timeout):
-        pass
+        lib.okFrontPanel_SetTimeout(self._handle, timeout)
 
     def GetDeviceMajorVersion(self):
-        pass
+        return int(okFrontPanel_GetDeviceMajorVersion(self._handle))
 
     def GetDeviceMinorVersion(self):
-        pass
+        return int(okFrontPanel_GetDeviceMinorVersion(self._handle))
 
     def ResetFPGA(self):
-        pass
+        err = lib.okFrontPanel_ResetFPGA(self._handle)
+        return check(err)
 
     def Close(self):
         """void okFrontPanel_Close(okFrontPanel_HANDLE hnd);"""
@@ -379,17 +400,16 @@ class FrontPanel:
         lib.okFrontPanel_GetSerialNumber(self._handle, buf)
         return ffi.string(buf).decode('ascii')
 
-    def GetDeviceSensors(self, settings):
-        pass
+    def GetDeviceSensors(self):
+        err = lib.okFrontPanel_GetDeviceSensors(self._handle, settings)
 
-    def GetDeviceSettings(self, settings):
-        pass
+    def GetDeviceSettings(self):
+        err = okFrontPanel_GetDeviceSettings(self._handle, settings)
 
-    def GetDeviceInfo(self, info):
-        pass
-
-    def GetDeviceInfoWithSize(self, info, size):
-        pass
+    def GetDeviceInfo(self):
+        info = ffi.new('okTDeviceInfo')
+        err = okFrontPanel_GetDeviceInfoWithSize(self._handle, info, size)
+        return info
 
     def GetDeviceID(self):
         buf = ffi.new('char[]', lib.OK_MAX_DEVICEID_LENGTH)
@@ -448,7 +468,7 @@ class FrontPanel:
         return lib.okFrontPanel_IsFrontPanelEnabled(self._handle) == lib.TRUE
 
     def IsFrontPanel3Supported(self):
-        pass
+        return lib.okFrontPanel_IsFrontPanel3Supported(self._handle) == lib.TRUE
 
     def UpdateWireIns(self):
         """void okFrontPanel_UpdateWireIns(okFrontPanel_HANDLE hnd);"""
