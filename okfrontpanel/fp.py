@@ -323,12 +323,12 @@ class FrontPanel:
         return int(lib.okFrontPanel_GetHostInterfaceWidth(self._handle))
 
     def IsHighSpeed(self):
-        return bool(lib.okFrontPanel_IsHighSpeed(self._handle))
+        return lib.okFrontPanel_IsHighSpeed(self._handle) == lib.TRUE
 
     def GetBoardModel(self):
         return lib.okFrontPanel_GetBoardModel(self._handle)
 
-    def GetBoardModelString(model):
+    def GetBoardModelString(self, model):
         buf = ffi.new('char[]', lib.OK_MAX_BOARD_MODEL_STRING_LENGTH)
         lib.okFrontPanel_GetBoardModelString(self._handle, model, buf)
         return ffi.string(buf).decode('ascii')
@@ -445,8 +445,7 @@ class FrontPanel:
 
     def IsFrontPanelEnabled(self):
         """Bool okFrontPanel_IsFrontPanelEnabled(okFrontPanel_HANDLE hnd);"""
-        bool_val = lib.okFrontPanel_ConfigureFPGA(self._handle)
-        return True if (bool_val == 0) else False
+        return lib.okFrontPanel_IsFrontPanelEnabled(self._handle) == lib.TRUE
 
     def IsFrontPanel3Supported(self):
         pass
