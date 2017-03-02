@@ -496,7 +496,7 @@ class FrontPanel:
         return lib.okFrontPanel_GetWireOutValue(self._handle, epAddr)
 
     def ActivateTriggerIn(self, epAddr, bit):
-        err = lib.okFrontPanel_ActivateTriggerIn(epAddr, bit)
+        err = lib.okFrontPanel_ActivateTriggerIn(self._handle, epAddr, bit)
         return check(err)
 
     def UpdateTriggerOuts(self):
