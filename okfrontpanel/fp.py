@@ -429,43 +429,59 @@ class FrontPanel:
         return check(err)
 
     def ConfigureFPGAWithReset(self, strFilename, reset):
-        pass
+        err = lib.okFrontPanel_ConfigureFPGAWithReset(self._handle, strFilename, reset)
+        return check(err)
 
-    def ConfigureFPGAFromMemory(self, data, length):
-        pass
+    def ConfigureFPGAFromMemory(self, data):
+        length = len(data)
+        data_ref = ffi.from_buffer(data)
+        err = lib.okFrontPanel_ConfigureFPGAFromMemory(self._handle, data_ref, length)
+        return check(err)
 
-    def ConfigureFPGAFromMemoryWithReset(self, data, length, reset):
-        pass
+    def ConfigureFPGAFromMemoryWithReset(self, data, reset):
+        length = len(data)
+        data_ref = ffi.from_buffer(data)
+        err = lib.okFrontPanel_ConfigureFPGAFromMemoryWithReset(self._handle, data_ref, length, reset)
+        return check(err)
 
     def ConfigureFPGAFromFlash(self, configIndex):
-        pass
+        err = lib.okFrontPanel_ConfigureFPGAFromFlash(self._handle, configIndex)
+        return check(err)
 
-    def GetPLL22150Configuration(self, pll):
-        pass
+    def GetPLL22150Configuration(self):
+        err = lib.okFrontPanel_GetPLL22150Configuration(self._handle, pll.h)
+        return pll
 
     def SetPLL22150Configuration(self, pll):
-        pass
+        err = lib.okFrontPanel_SetPLL22150Configuration(self._handle, pll.h)
+        return check(err)
 
-    def GetEepromPLL22150Configuration(self, pll):
-        pass
+    def GetEepromPLL22150Configuration(self):
+        err = lib.okFrontPanel_GetEepromPLL22150Configuration(self._handle, pll.h)
+        return pll
 
     def SetEepromPLL22150Configuration(self, pll):
-        pass
+        err = lib.okFrontPanel_SetEepromPLL22150Configuration(self._handle, pll.h)
+        return check(err)
 
-    def GetPLL22393Configuration(self, pll):
-        pass
+    def GetPLL22393Configuration(self):
+        err = lib.okFrontPanel_GetPLL22393Configuration(self._handle pll.h)
+        return pll
 
     def SetPLL22393Configuration(self, pll):
-        pass
+        err = lib.okFrontPanel_SetPLL22393Configuration(self._handle, pll.h)
+        return check(err)
 
-    def GetEepromPLL22393Configuration(self, pll):
-        pass
+    def GetEepromPLL22393Configuration(self):
+        err = lib.okFrontPanel_GetEepromPLL22393Configuration(self._handle, pll.h)
+        return pll
 
     def SetEepromPLL22393Configuration(self, pll):
-        pass
+        err = lib.okFrontPanel_SetEepromPLL22393Configuration(self._handle, pll.h)
+        return check(err)
 
     def LoadDefaultPLLConfiguration(self):
-        pass
+        return lib.okFrontPanel_LoadDefaultPLLConfiguration(self._handle)
 
     def IsFrontPanelEnabled(self):
         """Bool okFrontPanel_IsFrontPanelEnabled(okFrontPanel_HANDLE hnd);"""
@@ -478,9 +494,11 @@ class FrontPanel:
         """void okFrontPanel_UpdateWireIns(okFrontPanel_HANDLE hnd);"""
         lib.okFrontPanel_UpdateWireIns(self._handle)
 
-    def GetWireInValue(self, epAddr, val):
+    def GetWireInValue(self, epAddr):
         """ok_ErrorCode okFrontPanel_GetWireInValue(okFrontPanel_HANDLE hnd, int epAddr, UINT32 *val);"""
-        pass
+        val = ffi.new('uint32_t')
+        lib.okFrontPanel_GetWireInValue(self._handle, epAddr, val)
+        return val
 
     def SetWireInValue(self, ep, val, mask=0xffffffff):
         """ok_ErrorCode okFrontPanel_SetWireInValue(okFrontPanel_HANDLE hnd, int ep, unsigned long val, unsigned long mask);"""
