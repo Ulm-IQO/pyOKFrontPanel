@@ -310,10 +310,14 @@ class FrontPanel:
         return ffi.string(buf)
 
     def GetFPGAResetProfile(self, method):
+        size = ffi.sizeof('okTFPGAResetProfile')
+        profile = ffi.new('okTFPGAResetProfile')
         err = okFrontPanel_GetFPGAResetProfileWithSize(self._handle, method, profile, size)
         return profile
 
     def SetFPGAResetProfile(self, method, profile):
+        assert ffi.typeof(profile) is ffi.typeof('okTFPGAResetProfile')
+        size = ffi.sizeof('okTFPGAResetProfile')
         err = lib.okFrontPanel_SetFPGAResetProfileWithSize(method, profile, size)
         return check(err)
 
@@ -478,7 +482,7 @@ class FrontPanel:
         """ok_ErrorCode okFrontPanel_GetWireInValue(okFrontPanel_HANDLE hnd, int epAddr, UINT32 *val);"""
         pass
 
-    def SetWireInValue(self, ep, val, mask):
+    def SetWireInValue(self, ep, val, mask=0xffffffff):
         """ok_ErrorCode okFrontPanel_SetWireInValue(okFrontPanel_HANDLE hnd, int ep, unsigned long val, unsigned long mask);"""
         err = lib.okFrontPanel_SetWireInValue(self._handle, ep, val, mask)
         return check(err)
@@ -500,22 +504,32 @@ class FrontPanel:
         lib.okFrontPanel_UpdateTriggerOuts(self._handle)
 
     def IsTriggered(self, epAddr, mask):
-        pass
+        return lib.okFrontPanel_IsTriggered(self._handle, epAddr, mask) == lib.TRUE
 
     def GetLastTransferLength(self):
-        pass
+        return lib.okFrontPanel_GetLastTransferLength(self._handle)
 
-    def WriteToPipeIn(self, epAddr, length, data):
-        pass
+    def WriteToPipeIn(self, epAddr, data):
+        length = len(data)
+        data_ref = ffi.from_buffer(data)
+        err = lib.okFrontPanel_WriteToPipeIn(self._handle, epAddr, length, data_ref)
+        return check(err)
 
-    def ReadFromPipeOut(self, epAddr, length, data):
-        pass
+    def ReadFromPipeOut(self, epAddr, data):
+        length = len(data)
+        data_ref = ffi.from_buffer(data)
+        err = lib.okFrontPanel_ReadFromPipeOut(self._handle, epAddr, length, data_ref)
+        return check(err)
 
-    def WriteToBlockPipeIn(self, epAddr, blockSize, length, data):
-        pass
+    def WriteToBlockPipeIn(self, epAddr, blockSize, data):
+        length = len(data)
+        data_ref = ffi.from_buffer(data)
+        err = lib.okFrontPanel_WriteToBlockPipeIn(self._handle, epAddr, blockSize, length, data_ref)
+        return check(err)
 
     def ReadFromBlockPipeOut(self, epAddr, blockSize, data):
         """ long DLL_ENTRY okFrontPanel_ReadFromBlockPipeOut(okFrontPanel_HANDLE hnd, int epAddr, int blockSize, long length, unsigned char *data);"""
         length = len(data)
-        err = lib.okFrontPanel_ReadFromBlockPipeOut(self._handle, epAddr, length, data)
+        data_ref = ffi.from_buffer(data)
+        err = lib.okFrontPanel_ReadFromBlockPipeOut(self._handle, epAddr, blockSize, length, data_ref)
         return check(err)
