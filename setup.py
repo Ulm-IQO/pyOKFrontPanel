@@ -5,7 +5,7 @@ import setuptools
 setuptools.setup(
     name    = 'pyOKFrontPanel',
     license = 'MIT',
-    version = '0.0.1',
+    version = '4.5.6a1',
     author  = 'Qudi developers',
     author_email = 'qudi@uni-ulm.de',
     url     = 'https://github.com/Ulm-IQO/pyOKFrontPanel',
