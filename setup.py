@@ -11,7 +11,7 @@ setuptools.setup(
     author_email = 'qudi@uni-ulm.de',
     url     = 'https://github.com/Ulm-IQO/pyOKFrontPanel',
     download_url = 'https://github.com/Ulm-IQO/pyOKFrontPanel/archive/v{0}.tar.gz'.format(version_string),
-    description      = 'Python ctypes wrapper for the Opal Kelly FrontPanel FPGA interface ',
+    description      = 'Python CFFI wrapper for the Opal Kelly FrontPanel FPGA interface',
     keywords         = 'Opal Kelly FPGA FrontPanel',
 
     packages        = setuptools.find_packages(),
