@@ -1,15 +1,16 @@
 #!/usr/bin/env python
 import setuptools
 
+version_string = '4.5.6a1'
 
 setuptools.setup(
     name    = 'pyOKFrontPanel',
     license = 'MIT',
-    version = '4.5.6a1',
+    version = version_string,
     author  = 'Qudi developers',
     author_email = 'qudi@uni-ulm.de',
     url     = 'https://github.com/Ulm-IQO/pyOKFrontPanel',
-    download_url = 'https://github.com/Ulm-IQO/pyOKFrontPanel/archive/',
+    download_url = 'https://github.com/Ulm-IQO/pyOKFrontPanel/archive/v{0}.tar.gz'.format(version_string),
     description      = 'Python ctypes wrapper for the Opal Kelly FrontPanel FPGA interface ',
     keywords         = 'Opal Kelly FPGA FrontPanel',
 
