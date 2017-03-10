@@ -5,12 +5,17 @@
 import sys
 from ._wrapper import ffi, lib
 
+
 class PLL22150:
     def __init__(self):
         self._handle = lib.okPLL22150_Construct()
 
     def __del__(self):
         lib.okPLL22150_Destruct(self._handle)
+
+    @property
+    def h(self):
+        return self._handle
 
     def SetCrystalLoad(self, capload):
         lib.okPLL22150_SetCrystalLoad(self._handle, float(capload))
@@ -22,7 +27,7 @@ class PLL22150:
         return lib.okPLL22150_GetReference(self._handle)
 
     def SetVCOParameters(self, p, q):
-        return lib.okPLL22150_SetVCOParameters(self._handle, int(p), int(q))
+        return lib.okPLL22150_SetVCOParameters(self._handle, p, q)
 
     def GetVCOP(self):
         return lib.okPLL22150_GetVCOP(self._handle)
@@ -64,16 +69,16 @@ class PLL22150:
         lib.okPLL22150_GetOutputFrequency(self._handle, output)
 
     def IsOutputEnabled(self, output):
-        return lib.okPLL22150_IsOutputEnabled(self._handle, output)
+        return lib.okPLL22150_IsOutputEnabled(self._handle, output) == lib.TRUE
 
     def InitFromProgrammingInfo(self, info):
-        buf = ctypes.create_string_buffer(info)
+        buf = ffi.new('char[]', info)
         lib.okPLL22150_InitFromProgrammingInfo(self._handle, buf)
 
     def GetProgrammingInfo(self):
-        buf = ctypes.create_string_buffer()
+        buf = ffi.new('char[]', )
         lib.okPLL22150_GetProgrammingInfo(self._handle, buf)
-        return buf.value.decode()
+        return ffi.string(buf).decode('ascii')
 
 
 class PLL22393:
@@ -82,6 +87,10 @@ class PLL22393:
 
     def __del__(self):
         lib.okPLL22393_Destruct(self._handle)
+
+    @property
+    def h(self):
+        return self._handle
 
     def SetCrystalLoad(self, capload):
         lib.okPLL22393_SetCrystalLoad(self._handle, capload)
@@ -126,19 +135,19 @@ class PLL22393:
         return lib.okPLL22393_GetOutputFrequency(self._handle, n)
 
     def IsOutputEnabled(self, n):
-        return lib.okPLL22393_IsOutputEnabled(self._handle, n)
+        return lib.okPLL22393_IsOutputEnabled(self._handle, n) == lib.TRUE
 
     def IsPLLEnabled(self, n):
-        return lib.okPLL22393_IsPLLEnabled(self._handle, n)
+        return lib.okPLL22393_IsPLLEnabled(self._handle, n) == lib.TRUE
 
     def InitFromProgrammingInfo(self, info):
-        buf = ctypes.create_string_buffer(info)
+        buf = ffi.from_buffer(info)
         lib.okPLL22393_InitFromProgrammingInfo(self._handle, buf)
 
-    def GetProgrammingInfo(self):
-        buf = ctypes.create_string_buffer()
+    def GetProgrammingInfo(self, info):
+        buf = ffi.new('char[]', info)
         lib.okPLL22393_GetProgrammingInfo(self._handle, buf)
-        return buf.value
+        return ffi.string(buf).decode('ascii')
 
 
 class DeviceSettings:
@@ -148,23 +157,36 @@ class DeviceSettings:
     def __del__(self):
         lib.okDeviceSettings_Destruct(self._handle)
 
+    @property
+    def h(self):
+        return self._handle
+
     def GetString(self, key):
-        lib.okDeviceSettings_GetString(self._handle, )
+        length = 256
+        buf = ffi.new('char[]', length)
+        lib.okDeviceSettings_GetString(self._handle, key.encode(), length, buf)
+        return ffi.string(buf).decode()
 
     def GetInt(self, key):
-        lib.okDeviceSettings_GetInt(self._handle, )
+        value = ffi.new('uint32_t *')
+        lib.okDeviceSettings_GetInt(self._handle, key.encode(), value)
+        return int(value)
 
     def SetString(self, key, value):
-        lib.okDeviceSettings_SetString(self._handle, key, value)
+        err = lib.okDeviceSettings_SetString(self._handle, key.encode(), value.encode())
+        return check(err)
 
     def SetInt(self, key, value):
-        lib.okDeviceSettings_SetInt(self._handle, key, value)
+        err = lib.okDeviceSettings_SetInt(self._handle, key.encode(), value)
+        return check(err)
 
     def Delete(self, key):
-        lib.okDeviceSettings_Delete(self._handle, key)
+        err = lib.okDeviceSettings_Delete(self._handle, key.encode())
+        return check(err)
 
     def Save(self):
-        lib.okDeviceSettings_Save(self._handle)
+        err = lib.okDeviceSettings_Save(self._handle)
+        return check(err)
 
 
 class DeviceSensors:
@@ -173,6 +195,10 @@ class DeviceSensors:
 
     def __del__(self):
         lib.okDeviceSensors_Destruct(self._handle)
+
+    @property
+    def h(self):
+        return self._handle
 
     def GetSensorCount(self):
         return lib.okDeviceSensors_GetSensorCount(self._handle)
@@ -186,7 +212,7 @@ class Firmware:
         self._handle = handle
 
     def PerformTasks(self, serial, callback, arg):
-        lib.okFirmware_PerformTasks(slef._handle, serial, callback, arg)
+        return lib.okFirmware_PerformTasks(self._handle, serial.encode(), callback, arg)
 
 
 class FirmwarePackage:
@@ -214,24 +240,27 @@ class FrontPanelManager:
         lib.okFrontPanelManager_StartMonitoring(self._handle)
 
     def Open(self, serial):
-        fp_handle = lib.okFrontPanelManager_Open(self._handle, serial)
+        fp_handle = lib.okFrontPanelManager_Open(self._handle, serial.encode('ascii'))
         return FrontPanel(fp_handle)
 
 class FrontPanelDevices:
-    def __init__(self):
-        pass
+    def __init__(self, realm):
+        self._handle = lib.okFrontPanelDevices_Construct(realm.encode('ascii'))
 
     def __del__(self):
-        pass
+        lib.okFrontPanelDevices_Destruct(self._handle)
 
     def GetCount(self):
-        pass
+        return lib.okFrontPanelDevices_GetCount(self._handle)
 
-    def GetSerial(self, num, buf):
-        pass
+    def GetSerial(self, num):
+        buf = ffi.new('char[]', lib.OK_MAX_SERIALNUMBER_LENGTH)
+        lib.okFrontPanelDevices_GetSerial(self._handle, num, buf)
+        return ffi.string(buf).decode('ascii')
 
     def Open(self, serial):
-        pass
+        fp_handle = lib.okFrontPanelDevices_Open(self._handle, serial.encode('ascii'))
+        return FrontPanel(fp_handle)
 
 def check(error_code):
     """ Check routine for the received error codes.
@@ -295,41 +324,41 @@ class FrontPanel:
         return ffi.string(data)
 
     def FlashEraseSector(self, address):
-        err = okFrontPanel_FlashEraseSector(self._handle, address)
+        err = lib.okFrontPanel_FlashEraseSector(self._handle, address)
         return check(err)
 
     def FlashWrite(self, address, data):
         length = len(data)
-        buf = ffi.new()
+        buf = ffi.from_buffer(data)
         err = lib.okFrontPanel_FlashWrite(self._handle, address, length, buf)
         return check(err)
 
     def FlashRead(self, address, length):
-        buf = ffi.new()
+        buf = ffi.new('char[]', length)
         err = lib.okFrontPanel_FlashWrite(self._handle, address, length, buf)
         return ffi.string(buf)
 
     def GetFPGAResetProfile(self, method):
-        size = ffi.sizeof('okTFPGAResetProfile')
-        profile = ffi.new('okTFPGAResetProfile')
-        err = okFrontPanel_GetFPGAResetProfileWithSize(self._handle, method, profile, size)
+        profile = ffi.new('okTFPGAResetProfile *')
+        size = ffi.sizeof(profile)
+        err = lib.okFrontPanel_GetFPGAResetProfileWithSize(self._handle, method, profile, size)
         return profile
 
     def SetFPGAResetProfile(self, method, profile):
         assert ffi.typeof(profile) is ffi.typeof('okTFPGAResetProfile')
-        size = ffi.sizeof('okTFPGAResetProfile')
+        size = ffi.sizeof(profile)
         err = lib.okFrontPanel_SetFPGAResetProfileWithSize(method, profile, size)
         return check(err)
 
     def ReadRegister(self, addr):
-        data = ffi.new('uint32_t')
+        data = ffi.new('uint32_t *')
         lib.okFrontPanel_ReadRegister(self._handle, addr, data)
         return int(data)
 
     def ReadRegisters(self, regs):
         num = len(regs)
         regbuf = ffi.new('okTRegisterEntry[]', num)
-        okFrontPanel_ReadRegisters(self._handle, num, regbuf)
+        lib.okFrontPanel_ReadRegisters(self._handle, num, regbuf)
 
     def WriteRegister(self, addr, data):
         err = lib.okFrontPanel_WriteRegister(self._handle, addr, data)
@@ -379,17 +408,17 @@ class FrontPanel:
             lib.TRUE if enable else lib.FALSE)
 
     def SetBTPipePollingInterval(self, interval):
-        err = okFrontPanel_SetBTPipePollingInterval(self._handle, interval)
+        err = lib.okFrontPanel_SetBTPipePollingInterval(self._handle, interval)
         return check(err)
 
     def SetTimeout(self, timeout):
         lib.okFrontPanel_SetTimeout(self._handle, timeout)
 
     def GetDeviceMajorVersion(self):
-        return int(okFrontPanel_GetDeviceMajorVersion(self._handle))
+        return int(lib.okFrontPanel_GetDeviceMajorVersion(self._handle))
 
     def GetDeviceMinorVersion(self):
-        return int(okFrontPanel_GetDeviceMinorVersion(self._handle))
+        return int(lib.okFrontPanel_GetDeviceMinorVersion(self._handle))
 
     def ResetFPGA(self):
         err = lib.okFrontPanel_ResetFPGA(self._handle)
@@ -405,14 +434,17 @@ class FrontPanel:
         return ffi.string(buf).decode('ascii')
 
     def GetDeviceSensors(self):
-        err = lib.okFrontPanel_GetDeviceSensors(self._handle, settings)
+        sensors = DeviceSensors()
+        err = lib.okFrontPanel_GetDeviceSensors(self._handle, sensors.h)
 
     def GetDeviceSettings(self):
-        err = okFrontPanel_GetDeviceSettings(self._handle, settings)
+        settings = DeviceSettings()
+        err = lib.okFrontPanel_GetDeviceSettings(self._handle, settings.h)
 
     def GetDeviceInfo(self):
-        info = ffi.new('okTDeviceInfo')
-        err = okFrontPanel_GetDeviceInfoWithSize(self._handle, info, size)
+        info = ffi.new('okTDeviceInfo *')
+        size = ffi.sizeof(info)
+        err = lib.okFrontPanel_GetDeviceInfoWithSize(self._handle, info, size)
         return info
 
     def GetDeviceID(self):
@@ -449,6 +481,7 @@ class FrontPanel:
         return check(err)
 
     def GetPLL22150Configuration(self):
+        pll = PLL22150()
         err = lib.okFrontPanel_GetPLL22150Configuration(self._handle, pll.h)
         return pll
 
@@ -457,6 +490,7 @@ class FrontPanel:
         return check(err)
 
     def GetEepromPLL22150Configuration(self):
+        pll = PLL22150()
         err = lib.okFrontPanel_GetEepromPLL22150Configuration(self._handle, pll.h)
         return pll
 
@@ -465,7 +499,8 @@ class FrontPanel:
         return check(err)
 
     def GetPLL22393Configuration(self):
-        err = lib.okFrontPanel_GetPLL22393Configuration(self._handle pll.h)
+        pll = PLL22393()
+        err = lib.okFrontPanel_GetPLL22393Configuration(self._handle, pll.h)
         return pll
 
     def SetPLL22393Configuration(self, pll):
@@ -473,6 +508,7 @@ class FrontPanel:
         return check(err)
 
     def GetEepromPLL22393Configuration(self):
+        pll = PLL22393()
         err = lib.okFrontPanel_GetEepromPLL22393Configuration(self._handle, pll.h)
         return pll
 
@@ -496,7 +532,7 @@ class FrontPanel:
 
     def GetWireInValue(self, epAddr):
         """ok_ErrorCode okFrontPanel_GetWireInValue(okFrontPanel_HANDLE hnd, int epAddr, UINT32 *val);"""
-        val = ffi.new('uint32_t')
+        val = ffi.new('uint32_t *')
         lib.okFrontPanel_GetWireInValue(self._handle, epAddr, val)
         return val
 
