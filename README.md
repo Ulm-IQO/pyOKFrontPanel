@@ -119,7 +119,7 @@ Also make sure that you have installed the header files for the Python version t
 
 |  Function                         |   status          |
 |  -------------------------------  |  ---------------  |
-|  GetErrorString                   |       
+|  GetErrorString                   |  probably works   |
 |  AddCustomDevice                  |
 |  RemoveCustomDevice               |
 |  WriteI2C                         |
@@ -135,8 +135,8 @@ Also make sure that you have installed the header files for the Python version t
 |  WriteRegisters                   |
 |  GetHostInterfaceWidth            |
 |  IsHighSpeed                      | works             |
-|  GetBoardModel                    |
-|  GetBoardModelString              |
+|  GetBoardModel                    | works             |
+|  GetBoardModelString              | works             |
 |  GetDeviceCount                   | works             |
 |  GetDeviceListModel               | works             |
 |  GetDeviceListSerial              | works             |
@@ -174,7 +174,7 @@ Also make sure that you have installed the header files for the Python version t
 |  UpdateWireIns                    | works             |
 |  GetWireInValue                   |
 |  SetWireInValue                   | works             |
-|  UpdateWireOuts                   |
+|  UpdateWireOuts                   | works             |
 |  GetWireOutValue                  | works             |
 |  ActivateTriggerIn                | works             |
 |  UpdateTriggerOuts                |
@@ -182,6 +182,6 @@ Also make sure that you have installed the header files for the Python version t
 |  GetLastTransferLength            |
 |  WriteToPipeIn                    |
 |  ReadFromPipeOut                  |
-|  WriteToBlockPipeIn               |
+|  WriteToBlockPipeIn               | works             |
 |  ReadFromBlockPipeOut             | works             |
 
