@@ -21,6 +21,7 @@ Also make sure that you have installed the header files for the Python version t
 
 
 ## PLL22150
+|  -----------------------  |
 |  SetCrystalLoad           |
 |  SetReference             |
 |  GetReference             |
@@ -43,6 +44,7 @@ Also make sure that you have installed the header files for the Python version t
 |  GetProgrammingInfo       |
 
 ## PLL22393
+|  -----------------------  |
 |  SetCrystalLoad           |
 |  SetReference             |
 |  GetReference             |
@@ -63,6 +65,7 @@ Also make sure that you have installed the header files for the Python version t
 |  GetProgrammingInfo       |
 
 ## DeviceSettings
+|  -----------  |
 |  GetString    |
 |  GetInt       |
 |  SetString    |
@@ -71,29 +74,33 @@ Also make sure that you have installed the header files for the Python version t
 |  Save         |
 
 ## DeviceSensors
+|  ---------------  |
 |  GetSensorCount   |
 |  GetSensor        |
 
 ## Firmware
+|  -----------  |
 |  PerformTasks |
 
 
 ## FirmawarePackage
+|  ---------------  |
 |  GetFirmwareCount |
 |  GetFirmware      |
 
 ## FrontPanelManager
+|  ---------------  |
 |  StartMonitoring  |
 |  Open             |
 
 ## FrontPanelDevices
-
+|  -----------  |
 |  GetCount     |
 |  GetSerial    |
 |  Open         |
 
 ## FrontPanel
-
+|  -------------------------------  |  ---------------  |
 |  GetErrorString                   |       
 |  AddCustomDevice                  |
 |  RemoveCustomDevice               |
