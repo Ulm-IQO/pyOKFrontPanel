@@ -2,6 +2,32 @@
 """ Compile module.
 """
 
+#
+#   Find include and library directories
+#
+import sys
+import os
+import struct
+
+extra_dirs = {}
+include_dirs = []
+library_dirs = []
+
+bits = struct.calcsize("P") * 8
+
+if sys.platform == 'win32':
+    arch = 'x64' if bits == 64 else 'Win32'
+    okpath = os.environ['OKFP_SDK']
+    include_dirs.append(os.path.join(okpath, 'include'))
+    library_dirs.append(os.path.join(okpath, 'lib', arch))
+    extra_dirs.update({
+        'include_dirs': include_dirs,
+        'library_dirs': library_dirs
+        })
+#
+#   CFFI
+#
+
 import cffi
 
 ffibuilder = cffi.FFI()
@@ -12,7 +38,8 @@ ffibuilder.set_source(
     #include <stdint.h>
     #include <okFrontPanelDLL.h>
     """,
-    libraries=['okFrontPanel']
+    libraries=['okFrontPanel'],
+    **extra_dirs
 )
 
 ffibuilder.cdef("""
