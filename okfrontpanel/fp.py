@@ -596,6 +596,6 @@ class FrontPanel:
     def ReadFromBlockPipeOut(self, epAddr, blockSize, data):
         """ long DLL_ENTRY okFrontPanel_ReadFromBlockPipeOut(okFrontPanel_HANDLE hnd, int epAddr, int blockSize, long length, unsigned char *data);"""
         length = len(data)
-        data_ref = ffi.from_buffer(data)
+        data_ref = ffi.cast('unsigned char *', ffi.from_buffer(data))
         err = lib.okFrontPanel_ReadFromBlockPipeOut(self._handle, epAddr, blockSize, length, data_ref)
         return check(err)
