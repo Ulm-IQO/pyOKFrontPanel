@@ -327,7 +327,8 @@ class FrontPanel:
 
     def WriteI2C(self, addr, data):
         length = len(data)
-        err = lib.okFrontPanel_WriteI2C(self._handle, addr, length, data)
+        data_ref = ffi.cast('unsigned char *', ffi.from_buffer(data))
+        err = lib.okFrontPanel_WriteI2C(self._handle, addr, length, data_ref)
         return check(err)
 
     def ReadI2C(self, addr, length):
@@ -478,13 +479,13 @@ class FrontPanel:
 
     def ConfigureFPGAFromMemory(self, data):
         length = len(data)
-        data_ref = ffi.from_buffer(data)
+        data_ref = ffi.cast('unsigned char *', ffi.from_buffer(data))
         err = lib.okFrontPanel_ConfigureFPGAFromMemory(self._handle, data_ref, length)
         return check(err)
 
     def ConfigureFPGAFromMemoryWithReset(self, data, reset):
         length = len(data)
-        data_ref = ffi.from_buffer(data)
+        data_ref = ffi.cast('unsigned char *', ffi.from_buffer(data))
         err = lib.okFrontPanel_ConfigureFPGAFromMemoryWithReset(self._handle, data_ref, length, reset)
         return check(err)
 
@@ -577,19 +578,19 @@ class FrontPanel:
 
     def WriteToPipeIn(self, epAddr, data):
         length = len(data)
-        data_ref = ffi.from_buffer(data)
+        data_ref = ffi.cast('unsigned char *', ffi.from_buffer(data))
         err = lib.okFrontPanel_WriteToPipeIn(self._handle, epAddr, length, data_ref)
         return check(err)
 
     def ReadFromPipeOut(self, epAddr, data):
         length = len(data)
-        data_ref = ffi.from_buffer(data)
+        data_ref = ffi.cast('unsigned char *', ffi.from_buffer(data))
         err = lib.okFrontPanel_ReadFromPipeOut(self._handle, epAddr, length, data_ref)
         return check(err)
 
     def WriteToBlockPipeIn(self, epAddr, blockSize, data):
         length = len(data)
-        data_ref = ffi.from_buffer(data)
+        data_ref = ffi.cast('unsigned char *', ffi.from_buffer(data))
         err = lib.okFrontPanel_WriteToBlockPipeIn(self._handle, epAddr, blockSize, length, data_ref)
         return check(err)
 
