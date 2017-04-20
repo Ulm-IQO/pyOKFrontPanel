@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import setuptools
 
-version_string = '4.5.6a2'
+version_string = '4.5.6a3'
 
 setuptools.setup(
     name    = 'pyOKFrontPanel',
