@@ -9,7 +9,7 @@ You have [to sign up](https://pins.opalkelly.com/users/sign_in) at OpalKelly to 
 ### Windows
 Get Opal Kelly FrontPanel, at least **v4.5.6** and install it.
 
-Get the [Visual C compiler](http://landinghub.visualstudio.com/visual-cpp-build-tools) and install it.
+Get the [Microsoft Build Tools 2015](https://www.microsoft.com/en-us/download/details.aspx?id=48159) and install it.
 
 pyOKFrontPanel should find your FrontPanel installation from the `OKFP_SDK` environment variable.
 
