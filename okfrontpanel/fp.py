@@ -12,7 +12,10 @@ if sys.platform == 'win32':
     arch = 'x64' if bits == 64 else 'Win32'
     okpath = os.environ['OKFP_SDK']
     dllpath = os.path.join(okpath, 'lib', arch)
-    os.environ['PATH'] = dllpath + ';' + os.environ['PATH']
+    try:
+        os.add_dll_directory(dllpath)
+    except AttributeError:
+        os.environ['PATH'] = dllpath + ';' + os.environ['PATH']
 
 
 from ._wrapper import ffi, lib
